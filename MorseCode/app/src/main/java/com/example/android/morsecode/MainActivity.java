@@ -41,20 +41,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Translate = (Button)findViewById(R.id.translate);
-        sos = (Button)findViewById(R.id.sos);
+        Translate = (Button) findViewById(R.id.translate);
+        sos = (Button) findViewById(R.id.sos);
         isTorchOn = false;
 
         Translate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        //Do something after 100ms
-                        turnOffFlashLight();
-                    }
-                }, 2000);
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                turnOffFlashLight();
             }
         });
 
@@ -78,43 +77,61 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        mCameraManager = (CameraManager)getSystemService(Context.CAMERA_SERVICE);
-        try{
+        mCameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        try {
             mCameraID = mCameraManager.getCameraIdList()[0];
-        } catch(CameraAccessException e){
+        } catch (CameraAccessException e) {
             e.printStackTrace();
         }
 
     }
 
-    Map<String,String> encoding_map = new HashMap<String, String>(){
+    Map<String, String> encoding_map = new HashMap<String, String>() {
         {
-            put("a",".-"); put("b","-...");
-            put("c","-.-."); put("d","-..");
-            put("e","."); put("f","..-.");
-            put("g","--."); put("h","....");
-            put("i",".."); put("j",".---");
-            put("k","-.-"); put("l",".-..");
-            put("m","--"); put("n","-.");
-            put("o","---"); put("p",".--.");
-            put("q","--.-"); put("r",".-.");
-            put("s","..."); put("t","-");
-            put("u","..-"); put("v","...-");
-            put("w",".--"); put("x","-..-");
-            put("y","-.--"); put("z","--..");
-            put(" ","/"); put("1",".----");
-            put("2","..---"); put("3","...--");
-            put("4","....-"); put("5",".....");
-            put("6","-...."); put("7","--...");
-            put("8","---.."); put("9","----.");
-            put("0","-----");
+            put("a", ".-");
+            put("b", "-...");
+            put("c", "-.-.");
+            put("d", "-..");
+            put("e", ".");
+            put("f", "..-.");
+            put("g", "--.");
+            put("h", "....");
+            put("i", "..");
+            put("j", ".---");
+            put("k", "-.-");
+            put("l", ".-..");
+            put("m", "--");
+            put("n", "-.");
+            put("o", "---");
+            put("p", ".--.");
+            put("q", "--.-");
+            put("r", ".-.");
+            put("s", "...");
+            put("t", "-");
+            put("u", "..-");
+            put("v", "...-");
+            put("w", ".--");
+            put("x", "-..-");
+            put("y", "-.--");
+            put("z", "--..");
+            put(" ", "/");
+            put("1", ".----");
+            put("2", "..---");
+            put("3", "...--");
+            put("4", "....-");
+            put("5", ".....");
+            put("6", "-....");
+            put("7", "--...");
+            put("8", "---..");
+            put("9", "----.");
+            put("0", "-----");
         }
     };
 
-    public String encode(String text){
-        String answer = "" ;
+    public String encode(String text) {
+        String answer = "";
         int index = 0;
-        while(index < text.length()){
+        while (index < text.length()) {
             answer = answer + encoding_map.get(String.valueOf(text.charAt(index)));
             answer += " ";
             index++;
@@ -122,21 +139,21 @@ public class MainActivity extends AppCompatActivity {
         return answer;
     }
 
-    public String decode(String morse){
+    public String decode(String morse) {
 
         List<String> morseList = new ArrayList<String>(Arrays.asList(morse.split(" ")));
         String answer = "";
-        int index ;
+        int index;
         List<String> keys = new ArrayList<String>(encoding_map.keySet());
         List<String> values = new ArrayList<String>(encoding_map.values());
-        for(String temp : morseList){
+        for (String temp : morseList) {
             index = values.indexOf(temp);
             answer = answer + keys.get(index);
         }
         return answer;
     }
 
-    public void transmit(View button){
+    public void transmit(View button) {
         EditText SimpleText = (EditText) findViewById(R.id.simpletext);
         EditText MorseCode = (EditText) findViewById(R.id.morsecode);
 
@@ -144,46 +161,43 @@ public class MainActivity extends AppCompatActivity {
 
         String morseCode = MorseCode.getText().toString();
 
-        if(simpletext.isEmpty() && morseCode.isEmpty()){
-            Toast.makeText(this,"Please Enter Something!!",Toast.LENGTH_SHORT).show();
+        if (simpletext.isEmpty() && morseCode.isEmpty()) {
+            Toast.makeText(this, "Please Enter Something!!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if(morseCode.isEmpty() && !simpletext.isEmpty()){
-            if(Pattern.matches("^[a-z0-9]+$]",simpletext)) {
+        if (morseCode.isEmpty() && !simpletext.isEmpty()) {
+            if (Pattern.matches("^[a-z0-9]+$]", simpletext)) {
                 String encoded_msg = encode(simpletext);
                 MorseCode.setText(encoded_msg, TextView.BufferType.EDITABLE);
-            }
-            else{
-                Toast.makeText(this,"Message shouldn't contain special characters",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Message shouldn't contain special characters", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
 
-        if (!simpletext.isEmpty()&& !morseCode.isEmpty()){
-            if(Pattern.matches("^[a-z0-9]+$]",simpletext)) {
+        if (!simpletext.isEmpty() && !morseCode.isEmpty()) {
+            if (Pattern.matches("^[a-z0-9]+$]", simpletext)) {
                 String encoded_msg = encode(simpletext);
                 MorseCode.setText(encoded_msg, TextView.BufferType.EDITABLE);
-            }
-            else{
-                Toast.makeText(this,"Message shouldn't contain special characters",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Message shouldn't contain special characters", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
 
-        if(simpletext.isEmpty()&& !morseCode.isEmpty()){
-            if(Pattern.matches("^[\\.\\s/-]+$", morseCode)){
+        if (simpletext.isEmpty() && !morseCode.isEmpty()) {
+            if (Pattern.matches("^[\\.\\s/-]+$", morseCode)) {
                 String decoded_msg = decode(morseCode);
                 SimpleText.setText(decoded_msg);
-            }
-            else{
-                Toast.makeText(this,"Invalid Input",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Invalid Input", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
     }
 
-    public void translate(View button){
+    public void translate(View button) {
         EditText SimpleText = (EditText) findViewById(R.id.simpletext);
         EditText MorseCode = (EditText) findViewById(R.id.morsecode);
 
@@ -191,58 +205,55 @@ public class MainActivity extends AppCompatActivity {
 
         String morseCode = MorseCode.getText().toString();
 
-        if(simpletext.isEmpty() && morseCode.isEmpty()){
-            Toast.makeText(this,"Please Enter Something!!",Toast.LENGTH_SHORT).show();
+        if (simpletext.isEmpty() && morseCode.isEmpty()) {
+            Toast.makeText(this, "Please Enter Something!!", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(simpletext.isEmpty()&& !morseCode.isEmpty()){
-            if(Pattern.matches("^[\\.\\s/-]+$", morseCode)){
+        if (simpletext.isEmpty() && !morseCode.isEmpty()) {
+            if (Pattern.matches("^[\\.\\s/-]+$", morseCode)) {
                 String decoded_msg = decode(morseCode);
                 SimpleText.setText(decoded_msg);
 
-            }
-            else{
-                Toast.makeText(this,"Invalid Input",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Invalid Input", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
 
-        if(morseCode.isEmpty() && !simpletext.isEmpty()){
-            if(Pattern.matches("^[a-z0-9]+$",simpletext)) {
+        if (morseCode.isEmpty() && !simpletext.isEmpty()) {
+            if (Pattern.matches("^[a-z0-9]+$", simpletext)) {
                 String encoded_msg = encode(simpletext);
                 MorseCode.setText(encoded_msg, TextView.BufferType.EDITABLE);
-            }
-            else{
-                Toast.makeText(this,"Message shouldn't contain special characters",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Message shouldn't contain special characters", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
 
-        if (!simpletext.isEmpty()&& !morseCode.isEmpty()){
-            if(Pattern.matches("^[a-z0-9]+$",simpletext)) {
+        if (!simpletext.isEmpty() && !morseCode.isEmpty()) {
+            if (Pattern.matches("^[a-z0-9]+$", simpletext)) {
                 String encoded_msg = encode(simpletext);
                 MorseCode.setText(encoded_msg, TextView.BufferType.EDITABLE);
-            }
-            else{
-                Toast.makeText(this,"Message shouldn't contain special characters",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Message shouldn't contain special characters", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
     }
 
-    public void turnOnFlashLight(){
-        try{
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-                mCameraManager.setTorchMode(mCameraID,true);
+    public void turnOnFlashLight() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                mCameraManager.setTorchMode(mCameraID, true);
                 //playOnOffSound();
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    public void turnOffFlashLight(){
+    public void turnOffFlashLight() {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 mCameraManager.setTorchMode(mCameraID, false);
@@ -254,55 +265,125 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void sos(View view){
+    public void sos(View view) {
         String sos = "... --- ...";
         Switch transmit = (Switch) findViewById(R.id.switch1);
-        if(!transmit.isChecked()){
-            transmit.performClick();
+        if (!transmit.isChecked()) {
+            transmit.setChecked(true);
         }
-        int index = 0;
-        while(index < sos.length()){
-            if(String.valueOf(sos.charAt(index)).equals(".")){
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        for (int i = 0; i < sos.length(); i++) {
+            char c = sos.charAt(i);
+            Toast.makeText(this, String.valueOf(i), Toast.LENGTH_SHORT).show();
+            if (String.valueOf(c).equals(".")) {
                 turnOnFlashLight();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        //Do something after 100ms
-                        turnOffFlashLight();
-                    }
-                }, 2000);
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                turnOffFlashLight();
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-            if(String.valueOf(sos.charAt(index)).equals("-")){
+            else if (String.valueOf(c).equals("-")) {
                 turnOnFlashLight();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        //Do something after 100ms
-                        turnOffFlashLight();
-                    }
-                }, 2000);
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                turnOffFlashLight();
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-            if(String.valueOf(sos.charAt(index)).equals(" ")){
+            else if (String.valueOf(c).equals(" ")) {
                 turnOnFlashLight();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        //Do something after 100ms
-                        turnOffFlashLight();
-                    }
-                }, 3000);
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                turnOffFlashLight();
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-            if(String.valueOf(sos.charAt(index)).equals("/")){
+            else if (String.valueOf(c).equals("/")) {
                 turnOnFlashLight();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        //Do something after 100ms
-                        turnOffFlashLight();
-                    }
-                }, 2000);
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                turnOffFlashLight();
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-            index++;
         }
     }
 }
+
+
+//        int index = 0;
+//        while(index < sos.length()){
+//            if(String.valueOf(sos.charAt(index)).equals(".")){
+//                turnOnFlashLight();
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        //Do something after 100ms
+//                        turnOffFlashLight();
+//                    }
+//                }, 2000);
+//            }
+//            if(String.valueOf(sos.charAt(index)).equals("-")){
+//                turnOnFlashLight();
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        //Do something after 100ms
+//                        turnOffFlashLight();
+//                    }
+//                }, 2000);
+//            }
+//            if(String.valueOf(sos.charAt(index)).equals(" ")){
+//                turnOnFlashLight();
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        //Do something after 100ms
+//                        turnOffFlashLight();
+//                    }
+//                }, 3000);
+//            }
+//            if(String.valueOf(sos.charAt(index)).equals("/")){
+//                turnOnFlashLight();
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        //Do something after 100ms
+//                        turnOffFlashLight();
+//                    }
+//                }, 2000);
+//            }
+//            index++;
+
+
+
